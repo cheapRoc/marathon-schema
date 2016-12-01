@@ -1,9 +1,13 @@
 # marathon-schema
 
-Validator for constraining `marathon.json` files to the Marathon App Definition
-JSON format. The app definition schema is already provided by the Marathon open
-source project itself so it only needs to be pulled in by this binary and
-validated against a file.
+DC/OS integration utility providing schema based validation of marathon.json
+files.
+
+Validator constrains `marathon.json` files to the correct Marathon App
+Definition JSON format. The App Definition schema is already provided by the
+Marathon open source project itself so this tool only needs to pull down that
+schema file, include some schema checking logic in a single binary, and validate
+a test `marathon.json` file.
 
 ## Background
 
