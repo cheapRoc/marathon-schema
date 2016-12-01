@@ -20,5 +20,9 @@ practices. `marathon.json` helped us decompose services into single repos and
 drive automation influenced directly by engineering teams and not some random
 operations team two continents away.
 
-[AppDefinition.json](https://github.com/mesosphere/marathon/blob/master/docs/docs/rest-api/public/api/v2/schema/AppDefinition.json)
-[Group.json](https://github.com/mesosphere/marathon/blob/master/docs/docs/rest-api/public/api/v2/schema/Group.json)
+## Schemas
+
+Marathon provides the following JSON schema files.
+
+- [AppDefinition.json](https://github.com/mesosphere/marathon/blob/master/docs/docs/rest-api/public/api/v2/schema/AppDefinition.json)
+- [Group.json](https://github.com/mesosphere/marathon/blob/master/docs/docs/rest-api/public/api/v2/schema/Group.json)
