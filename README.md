@@ -9,6 +9,9 @@ Marathon open source project itself so this tool only needs to pull down that
 schema file, include some schema checking logic in a single binary, and validate
 a test `marathon.json` file.
 
+**WARNING** I'm still learning Go and this is far from feature complete. Dose
+  heavily with salt...
+
 ## Background
 
 Simple answer, I needed an extremely simple and easily deployable tool for
@@ -20,7 +23,7 @@ practices. `marathon.json` helped us decompose services into single repos and
 drive automation influenced directly by engineering teams and not some random
 operations team two continents away.
 
-## Usage
+## Usage (Future)
 
 Validate `marathon.json`, as an app def (`default`), against remote master
 schema (`default`).
