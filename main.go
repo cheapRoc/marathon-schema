@@ -2,25 +2,24 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"go/build"
+	"os"
 	"path/filepath"
+	"strings"
+
 	"github.com/urfave/cli"
 	schema "github.com/xeipuuv/gojsonschema"
 )
 
-// compile passing -ldflags "-X main.Build <build sha1>"
-var Build string
-var AppDefPath string
-var AppDefFile string
-var SamplePath string
-var SchemaPath string
-var FilePath string
-var FileProto string
+var (
+	Build string
+	SchemaPath string = "file:///Users/justin/Development/chariot/ims/marathon-schema/schemas/"
+	FileProto string = "file://"
+)
 
 func main() {
 	app := cli.NewApp()
+
 	app.Name = "marathon-schema"
 	app.Version = strings.Join([]string{"1.0.0-", Build}, "")
 	app.Usage = "Provides validation of marathon.json files against App Definition schema"
@@ -48,23 +47,18 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		p, err := build.Default.Import("github.com/user/repo/dummy", "", build.FindOnly)
+		p, err := build.Default.Import("github.com/not/found", "", build.FindOnly)
 		if err != nil {
-			// something
+			// panic(err.Error())
 		}
+
 		fname, _ := filepath.Abs(filepath.Join(p.Dir, c.Args().First()))
-		FileProto = "file://"
-
-		FilePath = strings.Join([]string{FileProto, fname}, "")
-
-		SchemaPath = "file:///Users/justin/Development/chariot/ims/marathon-schema/schemas/"
-
-		AppDefFile = strings.Join([]string{c.String("marathon"), "-AppDefinition.json"}, "")
-
-		AppDefPath = strings.Join([]string{SchemaPath, AppDefFile}, "")
-
-		schemaLoader := schema.NewReferenceLoader(AppDefPath)
-		fileLoader := schema.NewReferenceLoader(FilePath)
+		userfile := strings.Join([]string{FileProto, fname}, "")
+		schemaBuild := c.String("marathon")
+		schemaName := strings.Join([]string{schemaBuild, "-AppDefinition.json"}, "")
+		schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
+		schemaLoader := schema.NewReferenceLoader(schemaFile)
+		fileLoader := schema.NewReferenceLoader(userfile)
 
 		result, err := schema.Validate(schemaLoader, fileLoader)
 		if err != nil {
@@ -74,7 +68,7 @@ func main() {
 		if result.Valid() {
 			fmt.Printf("The document is valid")
 		} else {
-			fmt.Printf("The document is not valid. Errors :\n")
+			fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
 			for _, desc := range result.Errors() {
 				fmt.Printf("- %s\n", desc)
 			}
