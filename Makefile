@@ -25,6 +25,7 @@ test: test-deps
 	go test $(TESTS)
 
 deps: release-deps test-deps
+	go get github.com/urfave/cli
 	go get -u github.com/jteeuwen/go-bindata/...
 
 release: clean pack deps build test
