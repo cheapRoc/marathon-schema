@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,7 @@ func Test_ShowAppHelp(t *testing.T) {
 	app := cli.NewApp()
 	app.Writer = output
 
-	c := cli.NewContext(app, nil, nil)
+	// c := cli.NewContext(app, nil, nil)
 	if bytes.Index(output.Bytes(), []byte("AUTHOR(S):")) != -1 {
 		t.Errorf("expected\n%s not to include %s", output.String(), "AUTHOR(S):")
 	}
