@@ -26,6 +26,7 @@ test: test-deps
 
 deps: release-deps test-deps
 	go get github.com/urfave/cli
+	go get github.com/xeipuuv/gojsonschema
 	go get -u github.com/jteeuwen/go-bindata/...
 
 release: clean pack deps build test
