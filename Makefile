@@ -13,23 +13,22 @@ clean:
 	-rm -f $(BIN) $(ASSETS) $(BIN)_*
 
 pack: clean
-	go-bindata -o $(ASSETS) $(SCHEMAS)
+	$(GOPATH)/bin/go-bindata -o $(ASSETS) $(SCHEMAS)
 
 build: pack
 	go build -ldflags "-X main.Build=$(COMMIT)"
 
 $(TESTS): test
 
+# go list ./... | xargs -n1 go test
 test: test-deps
 	go test $(TESTS)
-	# go list ./... | xargs -n1 go test
 
-deps:
-
+deps: release-deps test-deps
+	go get -u github.com/jteeuwen/go-bindata/...
 
 release: clean pack deps build test
 	gox ./...
-	# upload to yonder cloud
 
 test-deps:
 	go get github.com/stretchr/testify
@@ -45,6 +44,5 @@ list-imports:
 
 list-test-imports:
 	go list -f '{{range .TestImports}}{{.}} {{end}}' ./... | tr ' ' \\n
-
 
 .PHONY: clean build
