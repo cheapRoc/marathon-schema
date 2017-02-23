@@ -1,5 +1,7 @@
 # marathon-schema
 
+[![Build Status](https://travis-ci.org/cheapRoc/marathon-schema.svg?branch=master)](https://travis-ci.org/cheapRoc/marathon-schema)
+
 DC/OS integration utility providing schema based validation of marathon.json
 files.
 
