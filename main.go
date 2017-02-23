@@ -55,8 +55,10 @@ func main() {
 		fname, _ := filepath.Abs(filepath.Join(p.Dir, c.Args().First()))
 		userfile := strings.Join([]string{FileProto, fname}, "")
 		schemaBuild := c.String("marathon")
+
 		schemaName := strings.Join([]string{schemaBuild, "-AppDefinition.json"}, "")
 		schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
+
 		schemaLoader := schema.NewReferenceLoader(schemaFile)
 		fileLoader := schema.NewReferenceLoader(userfile)
 
