@@ -1,13 +1,11 @@
 package main
 
 import (
-	// "bytes"
-	// "path/filepath"
-
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
 	"github.com/urfave/cli"
 	schema "github.com/xeipuuv/gojsonschema"
 )
@@ -58,7 +56,6 @@ func main() {
 		}
 
 		if c.String("tag") != "" {
-			// pull schema off internet
 			fmt.Printf("Implement pulling schema off interwebz for tag %s", c.String("tag"))
 			schemaData = ""
 		} else {
@@ -69,16 +66,19 @@ func main() {
 			schemaData = fmt.Sprintf("%s", schemaBinData)
 		}
 
-		fmt.Printf("schemaData:\n%s", schemaData)
+		// fmt.Printf("schemaData:\n%s", schemaData)
+
+		userFile := c.Args().First()
 
 		// Deal with user input JSON, `c.Args().First()` or `os.Stdin`
-		inputName, err := filepath.Abs(filepath.Join(os.Getenv("PWD"), c.Args().First()))
+		inputName, err := filepath.Abs(filepath.Join(os.Getenv("PWD"), userFile))
 		if err != nil {
 			panic(err.Error())
 		}
 
 		inputPath := strings.Join([]string{FileProto, inputName}, "")
-		fmt.Println("inputPath: %s\n", inputPath)
+
+		// fmt.Println("inputPath: %s\n", inputPath)
 
 		schemaLoader := schema.NewStringLoader(schemaData)
 		fileLoader := schema.NewReferenceLoader(inputPath)
@@ -89,12 +89,19 @@ func main() {
 		}
 
 		if result.Valid() {
-			fmt.Printf("The document is valid")
+			fmt.Printf("The document is valid\n")
+			os.Exit(0)
 		} else {
-			fmt.Printf("%s is not valid and contains the following errors:\n\n", inputName)
+			fmt.Printf("\n`%s` is not valid and contains the following errors:\n\n", userFile)
+
+			var succ int = 0;
 			for _, desc := range result.Errors() {
 				fmt.Printf("- %s\n", desc)
+				succ += 1
 			}
+
+			fmt.Println("\n")
+			os.Exit(succ)
 		}
 
 		return nil
