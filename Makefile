@@ -5,7 +5,7 @@ BIN = marathon-schema
 SCHEMA = schemas/AppDefinition.json schemas/Group.json
 SCHEMA_PREFIX = schemas/
 
-all: clean deps pack build test
+all: clean deps pack build
 
 install:
 	go install ./...
