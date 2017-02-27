@@ -42,6 +42,10 @@ func main() {
 			Name: "group, g",
 			Usage: "work on Group JSON input",
 		},
+		cli.BoolFlag{
+			Name: "silent, s",
+			Usage: "silent output",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -89,18 +93,27 @@ func main() {
 		}
 
 		if result.Valid() {
-			fmt.Printf("The document is valid\n")
+			if !c.Bool("silent") {
+				fmt.Printf("The document is valid\n")
+			}
+
 			os.Exit(0)
 		} else {
-			fmt.Printf("\n`%s` is not valid and contains the following errors:\n\n", userFile)
+			if !c.Bool("silent") {
+				fmt.Printf("\n`%s` is not valid and contains the following errors:\n\n", userFile)
+			}
 
 			var succ int = 0;
 			for _, desc := range result.Errors() {
-				fmt.Printf("- %s\n", desc)
+				if !c.Bool("silent") {
+					fmt.Printf("- %s\n", desc)
+				}
 				succ += 1
 			}
+			if !c.Bool("silent") {
+				fmt.Println("\n")
+			}
 
-			fmt.Println("\n")
 			os.Exit(succ)
 		}
 
