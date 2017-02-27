@@ -66,21 +66,19 @@ func main() {
 			if err != nil {
 				panic(err.Error())
 			}
-			schemaData = fmt.Sprintf("schema: %s", schemaBinData)
+			schemaData = fmt.Sprintf("%s", schemaBinData)
 		}
 
-		// Deal with user input JSON, file or stdin
+		fmt.Printf("schemaData:\n%s", schemaData)
 
-		fmt.Printf("schemaData:\n%s\n", schemaData)
-
-		// os.Stdin
+		// Deal with user input JSON, `c.Args().First()` or `os.Stdin`
 		inputName, err := filepath.Abs(filepath.Join(os.Getenv("PWD"), c.Args().First()))
 		if err != nil {
 			panic(err.Error())
 		}
 
 		inputPath := strings.Join([]string{FileProto, inputName}, "")
-		fmt.Println("inputPath: %s", inputPath)
+		fmt.Println("inputPath: %s\n", inputPath)
 
 		schemaLoader := schema.NewStringLoader(schemaData)
 		fileLoader := schema.NewReferenceLoader(inputPath)
