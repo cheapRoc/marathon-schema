@@ -7,7 +7,7 @@ import (
 	// "path/filepath"
 	"strings"
 	"github.com/urfave/cli"
-	// schema "github.com/xeipuuv/gojsonschema"
+	schema "github.com/xeipuuv/gojsonschema"
 )
 
 var (
@@ -90,18 +90,27 @@ func main() {
 
 		fileName := c.Args().First()
 
-		fmt.Printf("fileName: %s", fileName)
-
+		// fmt.Printf("fileName: %s", fileName)
 		// os.Stdin
 
-		// fileData, err = os.Open(fileName)
-		// if err != nil {
-		// 	if os.IsNotExist(err) {
-		// 		panic(fmt.Sprintf("Missing file %s\n%s", fileName, err.Error()))
-		// 	}
+		userFile, err := os.Open(fileName)
+		if err != nil {
+			if os.IsNotExist(err) {
+				panic(fmt.Sprintf("Missing file %s\n%s", fileName, err.Error()))
+			}
 
-		// 	panic(err.Error())
-		// }
+			panic(err.Error())
+		}
+
+		fileInfo, err := os.Stat(userFile)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		fileData, err := userFile.Read()
+		if err != nil {
+			panic(err.Error())
+		}
 
 		// ----
 
@@ -115,22 +124,22 @@ func main() {
 
 		// ----
 
-		// schemaLoader := schema.NewStringLoader(schemaData)
-		// fileLoader := schema.NewReferenceLoader(fileData)
+		schemaLoader := schema.NewStringLoader(schemaData)
+		fileLoader := schema.NewReferenceLoader(fileData)
 
-		// result, err := schema.Validate(schemaLoader, fileLoader)
-		// if err != nil {
-		// 	panic(err.Error())
-		// }
+		result, err := schema.Validate(schemaLoader, fileLoader)
+		if err != nil {
+			panic(err.Error())
+		}
 
-		// if result.Valid() {
-		// 	fmt.Printf("The document is valid")
-		// } else {
-		// 	fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
-		// 	for _, desc := range result.Errors() {
-		// 		fmt.Printf("- %s\n", desc)
-		// 	}
-		// }
+		if result.Valid() {
+			fmt.Printf("The document is valid")
+		} else {
+			fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
+			for _, desc := range result.Errors() {
+				fmt.Printf("- %s\n", desc)
+			}
+		}
 
 		return nil
 	}
