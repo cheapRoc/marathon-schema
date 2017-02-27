@@ -11,7 +11,7 @@ Marathon open source project itself so this tool only needs to pull down that
 schema file, include some schema checking logic in a single binary, and validate
 a test `marathon.json` file.
 
-**WARNING** This is currently feature incomplete. Dose heavily...
+**Current Status** This "works", but dose heavily...
 
 ![salt guy](http://i.giphy.com/l4Jz3a8jO92crUlWM.gif)
 
