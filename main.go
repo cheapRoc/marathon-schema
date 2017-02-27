@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	// "bytes"
 	// "path/filepath"
+
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"github.com/urfave/cli"
 	schema "github.com/xeipuuv/gojsonschema"
@@ -45,23 +47,6 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		// 1. If appdefSchema then load AppDefinition.json
-		// - error: app def could not be in binary asset
-
-		// 2. If groupSchema then load Group.json
-		// - error: group schema could not be in binary asset
-
-		// 3. If localFileSchema then load schema file on the file system
-		// - error: schema file is not on local FS
-
-		// 4. Pass asset binary information into jsonSchema
-		// - error:
-
-		// 5. Process schema result
-		// - error: JSON error processing schema or file
-
-		// 6. Optionally colorize output, for friendlier display...
-
 		var schemaData string
 
 		if c.Bool("appdef") {
@@ -86,46 +71,19 @@ func main() {
 
 		// Deal with user input JSON, file or stdin
 
-		fmt.Printf("schemaData:\n%s", schemaData)
+		fmt.Printf("schemaData:\n%s\n", schemaData)
 
-		fileName := c.Args().First()
-
-		// fmt.Printf("fileName: %s", fileName)
 		// os.Stdin
-
-		userFile, err := os.Open(fileName)
-		if err != nil {
-			if os.IsNotExist(err) {
-				panic(fmt.Sprintf("Missing file %s\n%s", fileName, err.Error()))
-			}
-
-			panic(err.Error())
-		}
-
-		fileInfo, err := os.Stat(userFile)
+		inputName, err := filepath.Abs(filepath.Join(os.Getenv("PWD"), c.Args().First()))
 		if err != nil {
 			panic(err.Error())
 		}
 
-		fileData, err := userFile.Read()
-		if err != nil {
-			panic(err.Error())
-		}
-
-		// ----
-
-		// userfile := strings.Join([]string{FileProto, fileName}, "")
-
-		// schemaTag := c.String("tag")
-		// schemaName := strings.Join([]string{schemaTag, "AppDefinition.json"}, "")
-		// schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
-
-		// schemaLoader := schema.NewReferenceLoader(schemaFile)
-
-		// ----
+		inputPath := strings.Join([]string{FileProto, inputName}, "")
+		fmt.Println("inputPath: %s", inputPath)
 
 		schemaLoader := schema.NewStringLoader(schemaData)
-		fileLoader := schema.NewReferenceLoader(fileData)
+		fileLoader := schema.NewReferenceLoader(inputPath)
 
 		result, err := schema.Validate(schemaLoader, fileLoader)
 		if err != nil {
@@ -135,7 +93,7 @@ func main() {
 		if result.Valid() {
 			fmt.Printf("The document is valid")
 		} else {
-			fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
+			fmt.Printf("%s is not valid and contains the following errors:\n\n", inputName)
 			for _, desc := range result.Errors() {
 				fmt.Printf("- %s\n", desc)
 			}
