@@ -2,19 +2,18 @@ package main
 
 import (
 	"fmt"
-	"go/build"
 	"os"
-	"path/filepath"
+	// "bytes"
+	// "path/filepath"
 	"strings"
-
 	"github.com/urfave/cli"
-	schema "github.com/xeipuuv/gojsonschema"
+	// schema "github.com/xeipuuv/gojsonschema"
 )
 
 var (
 	Build string
-	SchemaPath string = "file:///Users/justin/Development/chariot/ims/marathon-schema/schemas/"
 	FileProto string = "file://"
+	AssetName string
 )
 
 func main() {
@@ -32,9 +31,8 @@ func main() {
 
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
-			Name: "marathon, m",
-			Value: "1.3.3",
-			Usage: "version of Marathon to target",
+			Name: "tag, t",
+			Usage: "validate against remote tagged version of Marathon schema",
 		},
 		cli.BoolTFlag{
 			Name: "appdef, a",
@@ -47,34 +45,92 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		p, err := build.Default.Import("github.com/not/found", "", build.FindOnly)
-		if err != nil {
-			// panic(err.Error())
-		}
+		// 1. If appdefSchema then load AppDefinition.json
+		// - error: app def could not be in binary asset
 
-		fname, _ := filepath.Abs(filepath.Join(p.Dir, c.Args().First()))
-		userfile := strings.Join([]string{FileProto, fname}, "")
-		schemaBuild := c.String("marathon")
+		// 2. If groupSchema then load Group.json
+		// - error: group schema could not be in binary asset
 
-		schemaName := strings.Join([]string{schemaBuild, "-AppDefinition.json"}, "")
-		schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
+		// 3. If localFileSchema then load schema file on the file system
+		// - error: schema file is not on local FS
 
-		schemaLoader := schema.NewReferenceLoader(schemaFile)
-		fileLoader := schema.NewReferenceLoader(userfile)
+		// 4. Pass asset binary information into jsonSchema
+		// - error:
 
-		result, err := schema.Validate(schemaLoader, fileLoader)
-		if err != nil {
-			panic(err.Error())
-		}
+		// 5. Process schema result
+		// - error: JSON error processing schema or file
 
-		if result.Valid() {
-			fmt.Printf("The document is valid")
+		// 6. Optionally colorize output, for friendlier display...
+
+		var schemaData string
+
+		if c.Bool("appdef") {
+			AssetName = "AppDefinition.json"
+		} else if c.Bool("group") {
+			AssetName = "Group.json"
 		} else {
-			fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
-			for _, desc := range result.Errors() {
-				fmt.Printf("- %s\n", desc)
-			}
+			AssetName = "AppDefinition.json"
 		}
+
+		if c.String("tag") != "" {
+			// pull schema off internet
+			fmt.Printf("Implement pulling schema off interwebz for tag %s", c.String("tag"))
+			schemaData = ""
+		} else {
+			schemaBinData, err := Asset(AssetName)
+			if err != nil {
+				panic(err.Error())
+			}
+			schemaData = fmt.Sprintf("schema: %s", schemaBinData)
+		}
+
+		// Deal with user input JSON, file or stdin
+
+		fmt.Printf("schemaData:\n%s", schemaData)
+
+		fileName := c.Args().First()
+
+		fmt.Printf("fileName: %s", fileName)
+
+		// os.Stdin
+
+		// fileData, err = os.Open(fileName)
+		// if err != nil {
+		// 	if os.IsNotExist(err) {
+		// 		panic(fmt.Sprintf("Missing file %s\n%s", fileName, err.Error()))
+		// 	}
+
+		// 	panic(err.Error())
+		// }
+
+		// ----
+
+		// userfile := strings.Join([]string{FileProto, fileName}, "")
+
+		// schemaTag := c.String("tag")
+		// schemaName := strings.Join([]string{schemaTag, "AppDefinition.json"}, "")
+		// schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
+
+		// schemaLoader := schema.NewReferenceLoader(schemaFile)
+
+		// ----
+
+		// schemaLoader := schema.NewStringLoader(schemaData)
+		// fileLoader := schema.NewReferenceLoader(fileData)
+
+		// result, err := schema.Validate(schemaLoader, fileLoader)
+		// if err != nil {
+		// 	panic(err.Error())
+		// }
+
+		// if result.Valid() {
+		// 	fmt.Printf("The document is valid")
+		// } else {
+		// 	fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
+		// 	for _, desc := range result.Errors() {
+		// 		fmt.Printf("- %s\n", desc)
+		// 	}
+		// }
 
 		return nil
 	}
