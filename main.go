@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"go/build"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,8 +12,8 @@ import (
 
 var (
 	Build string
-	SchemaPath string = "file:///Users/justin/Development/chariot/ims/marathon-schema/schemas/"
 	FileProto string = "file://"
+	AssetName string
 )
 
 func main() {
@@ -32,9 +31,8 @@ func main() {
 
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
-			Name: "marathon, m",
-			Value: "1.3.3",
-			Usage: "version of Marathon to target",
+			Name: "tag, t",
+			Usage: "validate against remote tagged version of Marathon schema",
 		},
 		cli.BoolTFlag{
 			Name: "appdef, a",
@@ -47,20 +45,43 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		p, err := build.Default.Import("github.com/not/found", "", build.FindOnly)
-		if err != nil {
-			// panic(err.Error())
+		var schemaData string
+
+		if c.Bool("appdef") {
+			AssetName = "AppDefinition.json"
+		} else if c.Bool("group") {
+			AssetName = "Group.json"
+		} else {
+			AssetName = "AppDefinition.json"
 		}
 
-		fname, _ := filepath.Abs(filepath.Join(p.Dir, c.Args().First()))
-		userfile := strings.Join([]string{FileProto, fname}, "")
-		schemaBuild := c.String("marathon")
+		if c.String("tag") != "" {
+			fmt.Printf("Implement pulling schema off interwebz for tag %s", c.String("tag"))
+			schemaData = ""
+		} else {
+			schemaBinData, err := Asset(AssetName)
+			if err != nil {
+				panic(err.Error())
+			}
+			schemaData = fmt.Sprintf("%s", schemaBinData)
+		}
 
-		schemaName := strings.Join([]string{schemaBuild, "-AppDefinition.json"}, "")
-		schemaFile := strings.Join([]string{SchemaPath, schemaName}, "")
+		// fmt.Printf("schemaData:\n%s", schemaData)
 
-		schemaLoader := schema.NewReferenceLoader(schemaFile)
-		fileLoader := schema.NewReferenceLoader(userfile)
+		userFile := c.Args().First()
+
+		// Deal with user input JSON, `c.Args().First()` or `os.Stdin`
+		inputName, err := filepath.Abs(filepath.Join(os.Getenv("PWD"), userFile))
+		if err != nil {
+			panic(err.Error())
+		}
+
+		inputPath := strings.Join([]string{FileProto, inputName}, "")
+
+		// fmt.Println("inputPath: %s\n", inputPath)
+
+		schemaLoader := schema.NewStringLoader(schemaData)
+		fileLoader := schema.NewReferenceLoader(inputPath)
 
 		result, err := schema.Validate(schemaLoader, fileLoader)
 		if err != nil {
@@ -68,12 +89,19 @@ func main() {
 		}
 
 		if result.Valid() {
-			fmt.Printf("The document is valid")
+			fmt.Printf("The document is valid\n")
+			os.Exit(0)
 		} else {
-			fmt.Printf("%s is not valid and contains the following errors:\n\n", fname)
+			fmt.Printf("\n`%s` is not valid and contains the following errors:\n\n", userFile)
+
+			var succ int = 0;
 			for _, desc := range result.Errors() {
 				fmt.Printf("- %s\n", desc)
+				succ += 1
 			}
+
+			fmt.Println("\n")
+			os.Exit(succ)
 		}
 
 		return nil
