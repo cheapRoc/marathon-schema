@@ -92,7 +92,7 @@ func SetupApp() *cli.App {
 	app := cli.NewApp()
 
 	app.Name = "marathon-schema"
-	app.Version = strings.Join([]string{"1.0.0-", build}, "")
+	app.Version = strings.Join([]string{"1.0.1-", build}, "")
 	app.Usage = "Provides validation of marathon.json files against App Definition schema"
 	app.Authors = []cli.Author{
 		cli.Author{
