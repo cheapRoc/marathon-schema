@@ -2,40 +2,45 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"testing"
 
-	// "github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
+	assert "github.com/stretchr/testify/assert"
+	cli "github.com/urfave/cli"
 )
 
-// assert := assert.New(t)
-// assert.Equal(123, 123, "should be equal")
-// c := cli.NewContext(app, nil, nil)
+// func TestRunDefault(t *testing.T) {
+// 	os.Args = []string{"marathon-schema"}
 
-func TestMainAuthor(t *testing.T) {
-	output := new(bytes.Buffer)
-	app := cli.NewApp()
-	app.Writer = output
+// 	output := new(bytes.Buffer)
+// 	app := SetupApp()
+// 	app.Writer = output
+// 	app.Action = func(ctx *cli.Context) error {
+// 		DefaultAction(ctx)
+// 		return nil
+// 	}
 
-	if bytes.Index(output.Bytes(), []byte("AUTHOR(S):")) != -1 {
-		t.Errorf("expected\n%s not to include %s", output.String(), "AUTHOR(S):")
-	}
-}
+// 	app.Run(os.Args)
 
-func TestMainArguments(t *testing.T) {
-	output := new(bytes.Buffer)
-	app := cli.NewApp()
-	app.Writer = output
-	app.Run([]string{"-h"})
+// 	assert := assert.New(t)
+// 	assert.Contains(output.String(), "AUTHOR(S):", "should contain 'AUTHOR(S):'")
+// }
 
-	if bytes.Contains(output.Bytes(), []byte("Schema not found")) != -1 {
-		t.Errorf("expected\n%s not to include %s", output.String(), "Schema not found")
-	}
-}
+// func TestRunHelp(t *testing.T) {
+// 	os.Args = []string{"marathon-schema", "-h"}
+
+// 	output := new(bytes.Buffer)
+// 	app := SetupApp()
+// 	app.Writer = output
+// 	app.Action = DefaultAction
+// 	app.Run(os.Args)
+
+// 	assert := assert.New(t)
+// 	assert.Contains(output.String(), "AUTHOR(S):", "should contain 'AUTHOR(S):'")
+// }
 
 // marathon-schema ./marathon.json
-// app.Run([]string{"samples/marathon.json"})
-
+// app.Run([]string{"marathon-schema", "samples/marathon.json"})
 
 // func TestMainFile(t *testing.T) {
 // 	output := new(bytes.Buffer)
@@ -50,19 +55,24 @@ func TestMainArguments(t *testing.T) {
 // }
 
 // marathon-schema -a ./marathon.json
+// app.Run([]string{"marathon-schema", "-a", "samples/marathon.json"})
 
 // func TestMainAppDefFlag(t *testing.T) {
 
 // }
 
-// marathon-schema -g ./marathon.json
+// marathon-schema -g ./group.json
+// app.Run([]string{"marathon-schema", "-g", "samples/group.json"})
 
 // func TestMainGroupFlag(t *testing.T) {
 
 // }
 
 // marathon-schema -g -t 1.3.3 ./marathon.json
+// app.Run([]string{"marathon-schema", "-g", "-t", "1.3.3", "samples/group.json"})
+
 // marathon-schema -a -t 1.3.3 ./marathon.json
+// app.Run([]string{"marathon-schema", "-a", "-t", "1.3.3", "samples/marathon.json"})
 
 // func TestMainRemoteTag(t *testing.T) {
 

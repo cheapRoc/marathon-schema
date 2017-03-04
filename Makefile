@@ -17,7 +17,7 @@ pack: clean
 	$(GOPATH)/bin/go-bindata -prefix $(SCHEMA_PREFIX) -o $(ASSETS) $(SCHEMA)
 
 build: pack
-	go build -ldflags "-X main.Build=$(COMMIT)"
+	go build -ldflags "-X main.build=$(COMMIT)"
 
 $(TESTS): test
 
