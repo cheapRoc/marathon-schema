@@ -4,6 +4,7 @@ COMMIT = $(shell git rev-parse --short HEAD)
 BIN = marathon-schema
 SCHEMA = schemas/*.json
 SCHEMA_PREFIX = schemas/
+OSARCH = "linux/386 linux/amd64 darwin/amd64 solaris/amd64"
 
 all: clean deps pack build
 
@@ -11,7 +12,7 @@ install:
 	go install ./...
 
 clean:
-	-rm -f $(BIN) $(ASSETS) $(BIN)_*
+	-rm -f ./$(BIN) ./$(ASSETS) ./$(BIN)_*
 
 pack: clean
 	$(GOPATH)/bin/go-bindata -prefix $(SCHEMA_PREFIX) -o $(ASSETS) $(SCHEMA)
@@ -30,8 +31,8 @@ deps: release-deps test-deps
 	go get github.com/xeipuuv/gojsonschema
 	go get -u github.com/jteeuwen/go-bindata/...
 
-release: clean pack deps build test
-	gox ./...
+release: clean deps pack build
+	gox -osarch=$(OSARCH) -output="{{.Dir}}_{{.OS}}-{{.Arch}}" ./...
 
 test-deps:
 	go get github.com/stretchr/testify
