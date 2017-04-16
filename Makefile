@@ -2,7 +2,7 @@ TESTS = $(go list -f '{{range .TestGoFiles}}{{.}} {{end}}' ./...)
 ASSETS = bindata.go
 COMMIT = $(shell git rev-parse --short HEAD)
 BIN = marathon-schema
-SCHEMA = schemas/AppDefinition.json schemas/Group.json
+SCHEMA = schemas/*.json
 SCHEMA_PREFIX = schemas/
 
 all: clean deps pack build

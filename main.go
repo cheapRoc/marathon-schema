@@ -10,14 +10,26 @@ import (
 	schema "github.com/xeipuuv/gojsonschema"
 )
 
+const (
+	MarathonVersion string = "1.3.3"
+	FileProto string = "file://"
+)
+
 var (
-	build string
-	fileProto string = "file://"
+	buildCommit string
 	assetName string
 )
 
 func DefaultAction(ctx *cli.Context) error {
 	var schemaData string
+
+	if ctx.Bool("list") {
+		for _, name := range AssetNames() {
+			fmt.Printf("%s\n", name)
+		}
+		os.Exit(0)
+		return nil
+	}
 
 	if ctx.Bool("appdef") {
 		assetName = "AppDefinition.json"
@@ -28,15 +40,16 @@ func DefaultAction(ctx *cli.Context) error {
 	}
 
 	if ctx.String("tag") != "" {
-		fmt.Printf("Implement pulling schema off interwebz for tag %s", ctx.String("tag"))
 		schemaData = ""
-	} else {
-		schemaBinData, err := Asset(assetName)
-		if err != nil {
-			panic(err.Error())
-		}
-		schemaData = fmt.Sprintf("%s", schemaBinData)
+		assetName = fmt.Sprintf("%s-%s", ctx.String("tag"), assetName)
 	}
+
+	schemaBinData, err := Asset(assetName)
+	if err != nil {
+		fmt.Printf("Could not find schema asset filename: %s\n", assetName)
+		panic(err.Error())
+	}
+	schemaData = fmt.Sprintf("%s", schemaBinData)
 
 	userFile := ctx.Args().First()
 	if userFile == "" {
@@ -51,7 +64,7 @@ func DefaultAction(ctx *cli.Context) error {
 		panic(err.Error())
 	}
 
-	inputPath := strings.Join([]string{fileProto, inputName}, "")
+	inputPath := strings.Join([]string{FileProto, inputName}, "")
 	schemaLoader := schema.NewStringLoader(schemaData)
 	fileLoader := schema.NewReferenceLoader(inputPath)
 
@@ -92,8 +105,8 @@ func SetupApp() *cli.App {
 	app := cli.NewApp()
 
 	app.Name = "marathon-schema"
-	app.Version = strings.Join([]string{"1.0.1-", build}, "")
-	app.Usage = "Provides validation of marathon.json files against App Definition schema"
+	app.Version = strings.Join([]string{"1.2.0-", buildCommit}, "")
+	app.Usage = "Provides validation of marathon.json files against App Definition schema."
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name: "Justin Reagor",
@@ -104,19 +117,23 @@ func SetupApp() *cli.App {
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
 			Name: "tag, t",
-			Usage: "validate against remote tagged version of Marathon schema",
+			Usage: fmt.Sprintf("version of Marathon to validate, default is %s", MarathonVersion),
 		},
 		cli.BoolTFlag{
 			Name: "appdef, a",
-			Usage: "work on AppDefinition JSON input",
+			Usage: "process AppDefinition JSON input",
 		},
 		cli.BoolFlag{
 			Name: "group, g",
-			Usage: "work on Group JSON input",
+			Usage: "process Group JSON input",
 		},
 		cli.BoolFlag{
 			Name: "silent, s",
-			Usage: "silent output",
+			Usage: "silent command output",
+		},
+		cli.BoolFlag{
+			Name: "list, l",
+			Usage: "list schemas (pre-packaged)",
 		},
 	}
 
