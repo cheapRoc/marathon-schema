@@ -97,7 +97,7 @@ func SetupApp() *cli.App {
 	app.Authors = []cli.Author{
 		cli.Author{
 			Name: "Justin Reagor",
-			Email: "jreagor@chariotsolutions.com",
+			Email: "justinwr@gmail.com",
 		},
 	}
 
